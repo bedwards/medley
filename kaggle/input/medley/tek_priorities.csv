@@ -2,36 +2,42 @@ TEK,Skill,Times_tested,Weighted_avg_score,Priority
 6.7(C) [R],Determine how the events in the paragraph(s) contribute to the plot.,1,0.14035087719298245,1
 6.10(B.ii) [R],Revise to add supporting details. ,1,0.26785714285714285,2
 6.10(D) [S],Edit a draft using standard English conventions. ,1,0.30097087378640774,3
-6.9(A) [R],Determine a message the author conveys in the story. ,1,0.32328358208955227,4
-6.9(D) [S],Explain how the author's use of figurative language contributes to the story. ,1,0.35135135135135137,5
-6.6(D) [R],Summarize the story.,1,0.42857142857142855,6
-6.7(B) [R],Analyze how the characters' actions or responses develop the plot.,1,0.43283582089552236,7
-6.8(D.ii) [S],Determine what the introduction helps the reader understand. ,1,0.45454545454545453,8
-6.5(H) [R],Draw a conclusion based on ideas presented throughout the text.,1,0.4642857142857143,9
-6.5(E) [R],Determine the similarities between texts.,1,0.4931506849315068,10
-6.5(G) [R],Determine a key idea in the text.,1,0.5,11
-6.5(F) [R],"Make an inference about a character, narrator, or speaker based on text evidence.",1,0.5533980582524272,12
-6.9(F) [S],Determine which sentence conveys a certain mood. ,1,0.5636363636363636,13
-6.10(D.ix) [R],"Edit for correct spelling, including commonly confused terms.",1,0.6571428571428571,14
-6.6(C) [R],Use text evidence to support an idea or inference.,1,0.7,15
-6.10(D.vii) [S],Edit for correct capitalization.,1,0.7027027027027027,16
-6.2(A) [S],Use a dictionary entry to determine a word's meaning in context.,1,0.8108108108108109,17
-6.9(E) [S],Explain what the reader understands because of the author's use of point of view. ,0,0.0273972602739726,18
-6.8(B) [S],Identify the distinguishing characteristics of poetry.,0,0.22727272727272727,19
-6.8(C) [S],Identify the distinguishing characteristics of drama.,0,0.23333333333333334,20
-6.8(D.iii) [S],Describe the organizational pattern used in the selection. ,0,0.38181818181818183,21
-6.10(D.i) [R],Edit for complete sentences.,0,0.40714285714285714,22
-6.8(E.iii) [S],Identify the intended audience or reader.,0,0.4402857142857143,23
-6.8(E.ii) [R],Determine how the author supports the argument.,0,0.45,24
-6.8(A) [S],Identify the distinguishing characteristics of fictional texts.,0,0.45098039215686275,25
-6.9(B) [S],Explain why the author uses a problem-and-solution organizational structure. ,0,0.4607142857142857,26
-6.2(B) [R],Use the context to determine a word's meaning.,0,0.4666666666666667,27
-6.10(C) [R],Revise a draft. ,0,0.5232142857142857,28
-6.10(D.viii) [S],Edit for correct use of commas in complex sentences. ,0,0.5428571428571428,29
-6.9(G) [S],Explain why the author uses rhetorical devices in the selection.,0,0.5428571428571428,30
-6.7(A) [S],Infer the theme of the story. ,0,0.5887850467289719,31
-6.10(B.i) [R],Determine the best place to insert a sentence. ,0,0.6285714285714286,32
-6.11(C) [R],Compose an argumentative text. ,0,0.6428571428571429,33
-6.9(C) [S],Explain why the author includes a map in the selection. ,0,0.6714285714285714,34
-6.7(D) [S],Analyze how the setting influences the characters and plot. ,0,0.7192982456140351,35
-6.8(E.i) [R],Identify the author's claim.,0,0.7571428571428571,36
+6.5(H) [R],Draw a conclusion based on ideas presented throughout the text.,1,0.3137254901960784,4
+6.2(C) [S],Use Latin roots to determine a word's meaning.,1,0.3967072262229948,5
+6.8(D.i) [R],Determine which sentences support the controlling idea/thesis.,1,0.3967072262229948,6
+6.10(D.ii) [R],Edit for consistent and appropriate use of verb tenses.,1,0.3967072262229948,7
+6.10(D.iv) [S],Edit for subject-verb agreement with prepositional phrases. ,1,0.3967072262229948,8
+6.6(B) [R],Compose an informational text. ,1,0.3967072262229948,9
+6.11(B) [R],Compose an informational text. ,1,0.3967072262229948,10
+6.6(C) [R],Use text evidence to support an idea or inference.,1,0.4117647058823529,11
+6.5(F) [R],"Make an inference about a character, narrator, or speaker based on text evidence.",1,0.4298130841121496,12
+6.5(G) [R],Determine a key idea in the text.,1,0.43859649122807015,13
+6.8(D.ii) [S],Determine what the introduction helps the reader understand. ,1,0.45454545454545453,14
+6.6(D) [R],Summarize the story.,1,0.4672897196261682,15
+6.5(E) [R],Determine the similarities between texts.,1,0.4931506849315068,16
+6.9(A) [R],Determine a message the author conveys in the story. ,1,0.6323529411764706,17
+6.10(D.ix) [R],"Edit for correct spelling, including commonly confused terms.",1,0.6571428571428571,18
+6.7(B) [R],Analyze how the characters' actions or responses develop the plot.,1,0.6915887850467289,19
+6.10(D.vii) [S],Edit for correct capitalization.,1,0.7027027027027027,20
+6.9(D) [S],Explain how the author's use of figurative language contributes to the story. ,1,0.7941176470588235,21
+6.2(A) [S],Use a dictionary entry to determine a word's meaning in context.,1,0.8108108108108109,22
+6.9(F) [S],Determine which sentence conveys a certain mood. ,1,0.8725490196078431,23
+6.8(B) [S],Identify the distinguishing characteristics of poetry.,0,0.22727272727272727,24
+6.8(C) [S],Identify the distinguishing characteristics of drama.,0,0.23333333333333334,25
+6.10(C) [R],Revise a draft. ,0,0.2549019607843137,26
+6.8(E.iii) [S],Identify the intended audience or reader.,0,0.2857142857142857,27
+6.9(E) [S],Explain what the reader understands because of the author's use of point of view. ,0,0.37254901960784315,28
+6.8(D.iii) [S],Describe the organizational pattern used in the selection. ,0,0.38181818181818183,29
+6.8(A) [S],Identify the distinguishing characteristics of fictional texts.,0,0.45098039215686275,30
+6.9(B) [S],Explain why the author uses a problem-and-solution organizational structure. ,0,0.4607142857142857,31
+6.10(D.viii) [S],Edit for correct use of commas in complex sentences. ,0,0.5098039215686274,32
+6.9(G) [S],Explain why the author uses rhetorical devices in the selection.,0,0.5428571428571428,33
+6.10(D.i) [R],Edit for complete sentences.,0,0.5882352941176471,34
+6.7(A) [S],Infer the theme of the story. ,0,0.5887850467289719,35
+6.11(C) [R],Compose an argumentative text. ,0,0.6428571428571429,36
+6.9(C) [S],Explain why the author includes a map in the selection. ,0,0.6607142857142857,37
+6.2(B) [R],Use the context to determine a word's meaning.,0,0.6666666666666666,38
+6.8(E.ii) [R],Determine how the author supports the argument.,0,0.6785714285714286,39
+6.7(D) [S],Analyze how the setting influences the characters and plot. ,0,0.7192982456140351,40
+6.10(B.i) [R],Determine the best place to insert a sentence. ,0,0.7352941176470589,41
+6.8(E.i) [R],Identify the author's claim.,0,0.8303571428571429,42

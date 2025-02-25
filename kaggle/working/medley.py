@@ -104,10 +104,41 @@ for tek in tca_cols + interim_cols:
 
     avg_score = mean(performances) if performances else np.nan
 
+    # Only add if not already in tek_performance or if higher times_tested
+    if (
+        tek_code not in tek_performance
+        or times_tested > tek_performance[tek_code]["Times_tested"]
+    ):
+        tek_performance[tek_code] = {
+            "Skill": skill,
+            "Times_tested": times_tested,
+            "Weighted_avg_score": avg_score,
+        }
+
+# Now process untested TEKs from frequency data
+for _, row in freq.iterrows():
+    tek_code = row["TEK"]
+    times_tested = row["2024_4_staar"]
+
+    # Skip if times_tested is 0 or if TEK is already in performance data
+    if times_tested == 0 or tek_code in tek_performance:
+        continue
+
+    # Add to tek_performance with a default score
+    all_scores = []
+    for col in tca_cols + interim_cols:
+        if col in tca_cols:
+            all_scores.extend(tca[col].dropna().tolist())
+        if col in interim_cols:
+            all_scores.extend(interim[col].dropna().tolist())
+
+    # Use the average of all scores as an estimate
+    avg_all = mean(all_scores) if all_scores else 0.5
+
     tek_performance[tek_code] = {
-        "Skill": skill,
+        "Skill": row["Skill"],
         "Times_tested": times_tested,
-        "Weighted_avg_score": avg_score,
+        "Weighted_avg_score": max(0.1, avg_all - 0.1),  # Slightly lower than average
     }
 
 # Create dataframe and sort by times tested and score

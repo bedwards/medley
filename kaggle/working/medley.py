@@ -368,7 +368,7 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
     # Sort TEKs by times tested and group average score
     sorted_teks = sorted(
         group_tek_performance.items(),
-        key=lambda x: (-(2 * x[1]["Total_weighted_freq"] - x[1]["Group_avg_score"])),
+        key=lambda x: 2 * x[1]["Total_weighted_freq"] - x[1]["Group_avg_score"],
     )
 
     # Assign priorities

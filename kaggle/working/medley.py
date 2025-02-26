@@ -228,7 +228,10 @@ for tek in tca_cols + fall_interim_cols:
 # Now process untested TEKs from frequency data
 for _, row in freq.iterrows():
     tek_code = row["TEK"]
-    times_tested = row["2024_4_staar"]
+
+    # Calculate simple sum of all times this TEK was tested across all years
+    numeric_cols = [col for col in freq.columns if col not in ["TEK", "Skill"]]
+    times_tested = sum(row[col] for col in numeric_cols if not pd.isna(row[col]))
 
     # Calculate weighted frequency for untested TEKs too
     staar_cols = [col for col in freq.columns if col.endswith("_staar")]

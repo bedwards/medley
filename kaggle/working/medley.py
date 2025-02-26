@@ -24,6 +24,7 @@ periods = periods.set_index("student_id")
 
 tca = read_csv("perf_tca_clean")
 fall_interim = read_csv("perf_fall_interim_clean")
+spring_interim = read_csv("perf_spring_interim_clean")
 freq = read_csv("freq_rla_6_202425_clean")
 
 # Process frequency data
@@ -34,15 +35,24 @@ tca_cols = list(tca.columns)
 tca_cols.remove("student_id")
 fall_interim_cols = list(fall_interim.columns)
 fall_interim_cols.remove("student_id")
+spring_interim_cols = list(spring_interim.columns)
+spring_interim_cols.remove("student_id")
 
 # Process student data and calculate weighted averages
 tca["tca_avg"] = tca[tca_cols].mean(axis=1)
 fall_interim["fall_interim_avg"] = fall_interim[fall_interim_cols].mean(axis=1)
+spring_interim["spring_interim_avg"] = spring_interim[spring_interim_cols].mean(axis=1)
 
 # Combine TCA and interim data with more weight on interim
 all_students = pd.merge(
     tca[["student_id", "tca_avg"]],
     fall_interim[["student_id", "fall_interim_avg"]],
+    on="student_id",
+    how="outer",
+)
+all_students = pd.merge(
+    all_students,
+    spring_interim[["student_id", "spring_interim_avg"]],
     on="student_id",
     how="outer",
 )
@@ -126,11 +136,13 @@ for _, row in freq.iterrows():
 
     # Add to tek_performance with a default score
     all_scores = []
-    for col in tca_cols + fall_interim_cols:
+    for col in tca_cols + fall_interim_cols + spring_interim_cols:
         if col in tca_cols:
             all_scores.extend(tca[col].dropna().tolist())
         if col in fall_interim_cols:
             all_scores.extend(fall_interim[col].dropna().tolist())
+        if col in spring_interim_cols:
+            all_scores.extend(spring_interim[col].dropna().tolist())
 
     # Use the average of all scores as an estimate
     avg_all = mean(all_scores) if all_scores else 0.5
@@ -173,7 +185,7 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
     # Calculate group performance on each TEK
     group_tek_performance = {}
 
-    for tek in tca_cols + fall_interim_cols:
+    for tek in tca_cols + fall_interim_cols + spring_interim_cols:
         tek_code = tek.split(":")[1].strip() if ":" in tek else tek
 
         # Skip if not in tek_priorities

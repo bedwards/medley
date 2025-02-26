@@ -390,10 +390,12 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
             "TEK": data["TEK"],
             "Skill": data["Skill"],
             "Times_tested": data["Times_tested"],
-            "Total_weighted_freq": data["Total_weighted_freq"],
+            "Total_weighted_freq": data[
+                "norm_freq"
+            ],  # Use normalized frequency instead
             "Group_avg_score": data["Group_avg_score"],
             "Priority": priority,
-            "Student_ids": str(student_ids),  # Keep original format for reference
+            "Student_ids": str(student_ids),
         }
         all_group_priorities.append(group_priority)
 

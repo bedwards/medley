@@ -22,9 +22,9 @@ periods = read_csv("periods")
 periods.columns = ["period", "student_id"]  # Rename columns to match the new format
 periods = periods.set_index("student_id")
 
-tca = read_csv("perf-tca-clean")
-interim = read_csv("perf-interim-clean")
-freq = read_csv("freq-rla-6-202425-clean")
+tca = read_csv("perf_tca_clean")
+interim = read_csv("perf_fall_interim_clean")
+freq = read_csv("freq_rla_6_202425_clean")
 
 # Process frequency data
 freq["TEK"] = freq["TEK"].str.replace("\\", "")  # Remove backslashes from TEK column

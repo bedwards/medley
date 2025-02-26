@@ -23,7 +23,7 @@ periods.columns = ["period", "student_id"]  # Rename columns to match the new fo
 periods = periods.set_index("student_id")
 
 tca = read_csv("perf_tca_clean")
-interim = read_csv("perf_fall_interim_clean")
+fall_interim = read_csv("perf_fall_interim_clean")
 freq = read_csv("freq_rla_6_202425_clean")
 
 # Process frequency data
@@ -32,25 +32,25 @@ freq["TEK"] = freq["TEK"].str.replace("\\", "")  # Remove backslashes from TEK c
 # Extract unique TEKs from performance data
 tca_cols = list(tca.columns)
 tca_cols.remove("student_id")
-interim_cols = list(interim.columns)
-interim_cols.remove("student_id")
+fall_interim_cols = list(fall_interim.columns)
+fall_interim_cols.remove("student_id")
 
 # Process student data and calculate weighted averages
 tca["tca_avg"] = tca[tca_cols].mean(axis=1)
-interim["interim_avg"] = interim[interim_cols].mean(axis=1)
+fall_interim["fall_interim_avg"] = fall_interim[fall_interim_cols].mean(axis=1)
 
 # Combine TCA and interim data with more weight on interim
 all_students = pd.merge(
     tca[["student_id", "tca_avg"]],
-    interim[["student_id", "interim_avg"]],
+    fall_interim[["student_id", "fall_interim_avg"]],
     on="student_id",
     how="outer",
 )
 all_students["weighted_avg"] = all_students.apply(
     lambda row: (
-        0.4 * row["tca_avg"] + 0.6 * row["interim_avg"]
-        if pd.notna(row["tca_avg"]) and pd.notna(row["interim_avg"])
-        else row["tca_avg"] if pd.notna(row["tca_avg"]) else row["interim_avg"]
+        0.4 * row["tca_avg"] + 0.6 * row["fall_interim_avg"]
+        if pd.notna(row["tca_avg"]) and pd.notna(row["fall_interim_avg"])
+        else row["tca_avg"] if pd.notna(row["tca_avg"]) else row["fall_interim_avg"]
     ),
     axis=1,
 )
@@ -83,7 +83,7 @@ student_groups_df.to_csv(f"{data_dir}/student_groups.csv", index=False)
 
 # Calculate TEK priorities
 tek_performance = {}
-for tek in tca_cols + interim_cols:
+for tek in tca_cols + fall_interim_cols:
     tek_code = tek.split(":")[1].strip() if ":" in tek else tek
 
     # Find corresponding frequency data
@@ -99,8 +99,8 @@ for tek in tca_cols + interim_cols:
     performances = []
     if tek in tca_cols:
         performances.extend(tca[tek].dropna().tolist())
-    if tek in interim_cols:
-        performances.extend(interim[tek].dropna().tolist())
+    if tek in fall_interim_cols:
+        performances.extend(fall_interim[tek].dropna().tolist())
 
     avg_score = mean(performances) if performances else np.nan
 
@@ -126,11 +126,11 @@ for _, row in freq.iterrows():
 
     # Add to tek_performance with a default score
     all_scores = []
-    for col in tca_cols + interim_cols:
+    for col in tca_cols + fall_interim_cols:
         if col in tca_cols:
             all_scores.extend(tca[col].dropna().tolist())
-        if col in interim_cols:
-            all_scores.extend(interim[col].dropna().tolist())
+        if col in fall_interim_cols:
+            all_scores.extend(fall_interim[col].dropna().tolist())
 
     # Use the average of all scores as an estimate
     avg_all = mean(all_scores) if all_scores else 0.5
@@ -173,7 +173,7 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
     # Calculate group performance on each TEK
     group_tek_performance = {}
 
-    for tek in tca_cols + interim_cols:
+    for tek in tca_cols + fall_interim_cols:
         tek_code = tek.split(":")[1].strip() if ":" in tek else tek
 
         # Skip if not in tek_priorities
@@ -190,9 +190,11 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
         if tek in tca_cols:
             tca_students = tca[tca["student_id"].isin(student_ids)]
             performances.extend(tca_students[tek].dropna().tolist())
-        if tek in interim_cols:
-            interim_students = interim[interim["student_id"].isin(student_ids)]
-            performances.extend(interim_students[tek].dropna().tolist())
+        if tek in fall_interim_cols:
+            fall_interim_students = fall_interim[
+                fall_interim["student_id"].isin(student_ids)
+            ]
+            performances.extend(fall_interim_students[tek].dropna().tolist())
 
         if performances:
             group_avg = mean(performances)

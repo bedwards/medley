@@ -408,7 +408,7 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
                     "TEK": data["TEK"],
                     "Skill": data["Skill"],
                     "Times_tested": data["Times_tested"],
-                    "Total_weighted_freq": data["Total_weighted_freq"],
+                    "Total_weighted_freq": data["norm_freq"],
                     "Group_avg_score": data["Group_avg_score"],
                     "Priority": priority,
                     "Student_id": student_id,  # Single student ID per row

@@ -193,10 +193,17 @@ for tek in tca_cols + fall_interim_cols:
             )
 
         total_weighted_freq = staar_weight + spring_weight + other_weight
-        times_tested = freq_row["2024_4_staar"].values[
-            0
-        ]  # Keep original for backward compatibility
+
+        # Calculate simple sum of all times this TEK was tested across all years
+        numeric_cols = [col for col in freq.columns if col not in ["TEK", "Skill"]]
+        times_tested = sum(
+            freq_row[col].values[0]
+            for col in numeric_cols
+            if not pd.isna(freq_row[col].values[0])
+        )
+
         skill = freq_row["Skill"].values[0]
+
     else:
         times_tested = 0
         total_weighted_freq = 0

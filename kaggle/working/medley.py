@@ -315,12 +315,19 @@ tek_priorities.to_csv(f"{data_dir}/tek_priorities.csv", index=False)
 
 # Calculate group priorities
 all_group_priorities = []
-expanded_group_priorities = (
-    []
-)  # This will store our expanded format with one student per row
+
+# This will store our expanded format with one student per row
+expanded_group_priorities = []
+
+# Dictionary to store period-group to TEKs mapping for tracking top-5
+group_top_teks = {}
 
 for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
     student_ids = group_df["student_id"].tolist()
+    group_key = f"{period}-{group}"
+
+    # Initialize dictionary for this period-group
+    group_top_teks[group_key] = []
 
     # Calculate group performance on each TEK
     group_tek_performance = {}
@@ -366,9 +373,12 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
             }
 
     # Sort TEKs by times tested and group average score
-    max_freq = max(
-        [item[1]["Total_weighted_freq"] for item in group_tek_performance.items()]
-    )
+    max_freq = (
+        max([item[1]["Total_weighted_freq"] for item in group_tek_performance.items()])
+        if group_tek_performance
+        else 1
+    )  # Avoid division by zero
+
     if max_freq == 0:  # Avoid division by zero
         max_freq = 1
 
@@ -381,6 +391,10 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
         key=lambda x: 2 * x[1]["norm_freq"] - x[1]["norm_score"],
         reverse=True,
     )
+
+    # Store only the top 5 TEKs for this period-group
+    top_5_teks = [tek for tek, _ in sorted_teks[:5]]
+    group_top_teks[group_key] = top_5_teks
 
     # Assign priorities
     for priority, (tek, data) in enumerate(sorted_teks, 1):
@@ -400,20 +414,22 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
         all_group_priorities.append(group_priority)
 
         # Create expanded format with one student per row
-        for student_id in student_ids:
-            expanded_group_priorities.append(
-                {
-                    "period": period,
-                    "group": group,
-                    "TEK": data["TEK"],
-                    "Skill": data["Skill"],
-                    "Times_tested": data["Times_tested"],
-                    "Total_weighted_freq": data["norm_freq"],
-                    "Group_avg_score": data["Group_avg_score"],
-                    "Priority": priority,
-                    "Student_id": student_id,  # Single student ID per row
-                }
-            )
+        # Only include top-5 TEKs in the expanded format
+        if data["TEK"] in top_5_teks:
+            for student_id in student_ids:
+                expanded_group_priorities.append(
+                    {
+                        "period": period,
+                        "group": group,
+                        "TEK": data["TEK"],
+                        "Skill": data["Skill"],
+                        "Times_tested": data["Times_tested"],
+                        "Total_weighted_freq": data["norm_freq"],
+                        "Group_avg_score": data["Group_avg_score"],
+                        "Priority": priority,
+                        "Student_id": student_id,  # Single student ID per row
+                    }
+                )
 
 # Save the expanded format instead of the original format
 group_priorities_df = pd.DataFrame(expanded_group_priorities)

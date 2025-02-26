@@ -279,6 +279,10 @@ def clean(input_file, output_file):
 
 
 if __name__ == "__main__":
+    if not sys.argv[1:]:
+        print("need input name", file=sys.stderr)
+        sys.exit(1)
+
     d = "../input/medley"
-    n = "freq-rla-6-202425"
-    clean(f"{d}/{n}.csv", f"{d}/{n}-clean.csv")
+    n = sys.argv[1]
+    clean(f"{d}/{n}.csv", f"{d}/{n}_clean.csv")

@@ -4,12 +4,13 @@ import warnings
 
 warnings.simplefilter("ignore")
 
+import sys
 import pandas as pd
 import numpy as np
 import re
 
 
-def clean(file_path, file_type, output_path=None):
+def clean(file_path, file_type, output_path):
     """Clean either perfinterim or perftca data file."""
     # Read file without headers
     df = pd.read_csv(file_path, header=None)
@@ -81,9 +82,7 @@ def clean(file_path, file_type, output_path=None):
     print(clean_df)
     print(clean_df.columns)
 
-    # Save if output path provided
-    if output_path:
-        clean_df.to_csv(output_path, index=False)
+    clean_df.to_csv(output_path, index=False)
 
 
 def process_percentage(series):
@@ -95,8 +94,15 @@ def process_percentage(series):
 
 
 if __name__ == "__main__":
+    if not sys.argv[1:]:
+        print("need input name", file=sys.stderr)
+        sys.exit(1)
+
+    n = sys.argv[1]
+
+    if not (("interim" in n) ^ ("tca" in n)):
+        print("need exactly one of 'interim' or 'tca' in input name")
+
+    file_type = "interim" if "interim" in n else "tca"
     d = "../input/medley"
-    n = "perf-interim"
-    clean(f"{d}/{n}.csv", "interim", f"{d}/{n}-clean.csv")
-    n = "perf-tca"
-    clean(f"{d}/{n}.csv", "tca", f"{d}/{n}-clean.csv")
+    clean(f"{d}/{n}.csv", file_type, f"{d}/{n}_clean.csv")

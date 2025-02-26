@@ -156,10 +156,50 @@ for tek in tca_cols + fall_interim_cols:
     # Find corresponding frequency data
     freq_row = freq[freq["TEK"] == tek_code]
     if len(freq_row) > 0:
-        times_tested = freq_row["2024_4_staar"].values[0]
+        # Calculate weighted frequency
+        staar_cols = [col for col in freq.columns if col.endswith("_staar")]
+        spring_cols = [col for col in freq.columns if col.endswith("_spring")]
+        other_cols = [
+            col for col in freq.columns if col.endswith(("_fall", "_winter", "_field"))
+        ]
+
+        # Calculate weights for different test types
+        staar_weight = 0
+        for i, col in enumerate(sorted(staar_cols, reverse=True)):
+            weight = 200 - (i * 10)  # 200, 190, 180...
+            staar_weight += (
+                freq_row[col].values[0] * weight
+                if not pd.isna(freq_row[col].values[0])
+                else 0
+            )
+
+        spring_weight = 0
+        for i, col in enumerate(sorted(spring_cols, reverse=True)):
+            weight = 150 - (i * 10)  # 150, 140, 130...
+            spring_weight += (
+                freq_row[col].values[0] * weight
+                if not pd.isna(freq_row[col].values[0])
+                else 0
+            )
+
+        other_weight = 0
+        for i, col in enumerate(sorted(other_cols, reverse=True)):
+            year = int(col.split("_")[0])
+            weight = 100 - ((2025 - year) * 5)  # 100, 95, 90...
+            other_weight += (
+                freq_row[col].values[0] * weight
+                if not pd.isna(freq_row[col].values[0])
+                else 0
+            )
+
+        total_weighted_freq = staar_weight + spring_weight + other_weight
+        times_tested = freq_row["2024_4_staar"].values[
+            0
+        ]  # Keep original for backward compatibility
         skill = freq_row["Skill"].values[0]
     else:
         times_tested = 0
+        total_weighted_freq = 0
         skill = ""
 
     # Calculate performance on this TEK
@@ -168,17 +208,20 @@ for tek in tca_cols + fall_interim_cols:
         performances.extend(tca[tek].dropna().tolist())
     if tek in fall_interim_cols:
         performances.extend(fall_interim[tek].dropna().tolist())
+    if tek in spring_interim_cols:
+        performances.extend(spring_interim[tek].dropna().tolist())
 
     avg_score = mean(performances) if performances else np.nan
 
     # Only add if not already in tek_performance or if higher times_tested
     if (
         tek_code not in tek_performance
-        or times_tested > tek_performance[tek_code]["Times_tested"]
+        or total_weighted_freq > tek_performance[tek_code]["Total_weighted_freq"]
     ):
         tek_performance[tek_code] = {
             "Skill": skill,
             "Times_tested": times_tested,
+            "Total_weighted_freq": total_weighted_freq,
             "Weighted_avg_score": avg_score,
         }
 
@@ -186,6 +229,32 @@ for tek in tca_cols + fall_interim_cols:
 for _, row in freq.iterrows():
     tek_code = row["TEK"]
     times_tested = row["2024_4_staar"]
+
+    # Calculate weighted frequency for untested TEKs too
+    staar_cols = [col for col in freq.columns if col.endswith("_staar")]
+    spring_cols = [col for col in freq.columns if col.endswith("_spring")]
+    other_cols = [
+        col for col in freq.columns if col.endswith(("_fall", "_winter", "_field"))
+    ]
+
+    # Calculate weights for different test types
+    staar_weight = 0
+    for i, col in enumerate(sorted(staar_cols, reverse=True)):
+        weight = 200 - (i * 10)  # 200, 190, 180...
+        staar_weight += row[col] * weight if not pd.isna(row[col]) else 0
+
+    spring_weight = 0
+    for i, col in enumerate(sorted(spring_cols, reverse=True)):
+        weight = 150 - (i * 10)  # 150, 140, 130...
+        spring_weight += row[col] * weight if not pd.isna(row[col]) else 0
+
+    other_weight = 0
+    for i, col in enumerate(sorted(other_cols, reverse=True)):
+        year = int(col.split("_")[0])
+        weight = 100 - ((2025 - year) * 5)  # 100, 95, 90...
+        other_weight += row[col] * weight if not pd.isna(row[col]) else 0
+
+    total_weighted_freq = staar_weight + spring_weight + other_weight
 
     # Skip if times_tested is 0 or if TEK is already in performance data
     if times_tested == 0 or tek_code in tek_performance:
@@ -207,6 +276,7 @@ for _, row in freq.iterrows():
     tek_performance[tek_code] = {
         "Skill": row["Skill"],
         "Times_tested": times_tested,
+        "Total_weighted_freq": total_weighted_freq,
         "Weighted_avg_score": max(0.1, avg_all - 0.1),  # Slightly lower than average
     }
 
@@ -217,6 +287,7 @@ tek_priorities = pd.DataFrame(
             "TEK": tek,
             "Skill": data["Skill"],
             "Times_tested": data["Times_tested"],
+            "Total_weighted_freq": data["Total_weighted_freq"],
             "Weighted_avg_score": data["Weighted_avg_score"],
         }
         for tek, data in tek_performance.items()
@@ -224,9 +295,11 @@ tek_priorities = pd.DataFrame(
     ]
 )
 
-tek_priorities = tek_priorities.sort_values(
-    by=["Times_tested", "Weighted_avg_score"], ascending=[False, True]
-)
+# Create combined priority score (2:1 ratio of frequency to performance)
+tek_priorities["Combined_score"] = (
+    2 * tek_priorities["Total_weighted_freq"]
+) - tek_priorities["Weighted_avg_score"]
+tek_priorities = tek_priorities.sort_values(by=["Combined_score"], ascending=False)
 tek_priorities["Priority"] = range(1, len(tek_priorities) + 1)
 tek_priorities.to_csv(f"{data_dir}/tek_priorities.csv", index=False)
 
@@ -252,6 +325,7 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
         # Get TEK info
         priority_row = tek_priorities[tek_priorities["TEK"] == tek_code]
         times_tested = priority_row["Times_tested"].values[0]
+        total_weighted_freq = priority_row["Total_weighted_freq"].values[0]
         skill = priority_row["Skill"].values[0]
 
         # Calculate group performance
@@ -264,6 +338,11 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
                 fall_interim["student_id"].isin(student_ids)
             ]
             performances.extend(fall_interim_students[tek].dropna().tolist())
+        if tek in spring_interim_cols:
+            spring_interim_students = spring_interim[
+                spring_interim["student_id"].isin(student_ids)
+            ]
+            performances.extend(spring_interim_students[tek].dropna().tolist())
 
         if performances:
             group_avg = mean(performances)
@@ -272,13 +351,14 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
                 "TEK": tek_code,
                 "Skill": skill,
                 "Times_tested": times_tested,
+                "Total_weighted_freq": total_weighted_freq,
                 "Group_avg_score": group_avg,
             }
 
     # Sort TEKs by times tested and group average score
     sorted_teks = sorted(
         group_tek_performance.items(),
-        key=lambda x: (-x[1]["Times_tested"], x[1]["Group_avg_score"]),
+        key=lambda x: (-(2 * x[1]["Total_weighted_freq"] - x[1]["Group_avg_score"])),
     )
 
     # Assign priorities
@@ -289,6 +369,7 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
             "TEK": data["TEK"],
             "Skill": data["Skill"],
             "Times_tested": data["Times_tested"],
+            "Total_weighted_freq": data["Total_weighted_freq"],
             "Group_avg_score": data["Group_avg_score"],
             "Priority": priority,
             "Student_ids": str(student_ids),  # Keep original format for reference
@@ -304,6 +385,7 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
                     "TEK": data["TEK"],
                     "Skill": data["Skill"],
                     "Times_tested": data["Times_tested"],
+                    "Total_weighted_freq": data["Total_weighted_freq"],
                     "Group_avg_score": data["Group_avg_score"],
                     "Priority": priority,
                     "Student_id": student_id,  # Single student ID per row

@@ -10,7 +10,7 @@ import numpy as np
 import re
 
 
-def clean(file_path, file_type, output_path):
+def clean(file_path, file_type, output_path, interim_type):
     """Clean either perfinterim or perftca data file."""
     # Read file without headers
     df = pd.read_csv(file_path, header=None)
@@ -25,7 +25,7 @@ def clean(file_path, file_type, output_path):
         for i, header in enumerate(df.iloc[2, 5:-4]):
             if pd.isna(header):
                 continue
-            col_name = f"Interim: {header}"
+            col_name = f"{interim_type}: {header}"
             col_idx = i + 5
             clean_df[col_name] = process_percentage(df.iloc[3:, col_idx])
 
@@ -104,5 +104,11 @@ if __name__ == "__main__":
         print("need exactly one of 'interim' or 'tca' in input name")
 
     file_type = "interim" if "interim" in n else "tca"
+
+    if file_type == "interim":
+        interim_type = "Fall" if "fall" in n else "Spring"
+    else:
+        interim_type = None
+
     d = "../input/medley"
-    clean(f"{d}/{n}.csv", file_type, f"{d}/{n}_clean.csv")
+    clean(f"{d}/{n}.csv", file_type, f"{d}/{n}_clean.csv", interim_type)

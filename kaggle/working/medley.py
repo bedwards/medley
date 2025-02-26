@@ -58,9 +58,42 @@ all_students = pd.merge(
 )
 all_students["weighted_avg"] = all_students.apply(
     lambda row: (
-        0.4 * row["tca_avg"] + 0.6 * row["fall_interim_avg"]
-        if pd.notna(row["tca_avg"]) and pd.notna(row["fall_interim_avg"])
-        else row["tca_avg"] if pd.notna(row["tca_avg"]) else row["fall_interim_avg"]
+        # All three scores available
+        (
+            1 * row["tca_avg"]
+            + 2 * row["fall_interim_avg"]
+            + 4 * row["spring_interim_avg"]
+        )
+        / 7
+        if pd.notna(row["tca_avg"])
+        and pd.notna(row["fall_interim_avg"])
+        and pd.notna(row["spring_interim_avg"])
+        # Only TCA and fall available (original formula)
+        else (
+            (1 * row["tca_avg"] + 2 * row["fall_interim_avg"]) / 3
+            if pd.notna(row["tca_avg"]) and pd.notna(row["fall_interim_avg"])
+            # Only TCA and spring available
+            else (
+                (1 * row["tca_avg"] + 4 * row["spring_interim_avg"]) / 5
+                if pd.notna(row["tca_avg"]) and pd.notna(row["spring_interim_avg"])
+                # Only fall and spring available
+                else (
+                    (2 * row["fall_interim_avg"] + 4 * row["spring_interim_avg"]) / 6
+                    if pd.notna(row["fall_interim_avg"])
+                    and pd.notna(row["spring_interim_avg"])
+                    # Only one score available
+                    else (
+                        row["spring_interim_avg"]
+                        if pd.notna(row["spring_interim_avg"])
+                        else (
+                            row["fall_interim_avg"]
+                            if pd.notna(row["fall_interim_avg"])
+                            else row["tca_avg"]
+                        )
+                    )
+                )
+            )
+        )
     ),
     axis=1,
 )

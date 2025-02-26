@@ -39,7 +39,31 @@ spring_interim_cols = list(spring_interim.columns)
 spring_interim_cols.remove("student_id")
 
 # Process student data and calculate weighted averages
-tca["tca_avg"] = tca[tca_cols].mean(axis=1)
+# Group TCA columns by test number
+tca_by_test = {}
+for col in tca_cols:
+    # Extract test number from format like "TCA 1: 6.2(B) [R]"
+    test_num = int(col.split("TCA")[1].split(":")[0].strip()) if "TCA" in col else 0
+    if test_num not in tca_by_test:
+        tca_by_test[test_num] = []
+    tca_by_test[test_num].append(col)
+
+# Calculate weighted TCA average
+tca["tca_avg"] = tca.apply(
+    lambda row: (
+        sum(
+            test_num * row[cols].mean(skipna=True) * pd.notna(row[cols]).any()
+            for test_num, cols in tca_by_test.items()
+        )
+        / sum(
+            test_num * pd.notna(row[cols]).any()
+            for test_num, cols in tca_by_test.items()
+        )
+        if sum(pd.notna(row[cols]).any() for _, cols in tca_by_test.items()) > 0
+        else np.nan
+    ),
+    axis=1,
+)
 fall_interim["fall_interim_avg"] = fall_interim[fall_interim_cols].mean(axis=1)
 spring_interim["spring_interim_avg"] = spring_interim[spring_interim_cols].mean(axis=1)
 

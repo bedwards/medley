@@ -366,9 +366,19 @@ for (period, group), group_df in student_groups_df.groupby(["period", "group"]):
             }
 
     # Sort TEKs by times tested and group average score
+    max_freq = max(
+        [item[1]["Total_weighted_freq"] for item in group_tek_performance.items()]
+    )
+    if max_freq == 0:  # Avoid division by zero
+        max_freq = 1
+
+    for tek, data in group_tek_performance.items():
+        data["norm_freq"] = data["Total_weighted_freq"] / max_freq
+        data["norm_score"] = data["Group_avg_score"]  # Already in 0-1 range
+
     sorted_teks = sorted(
         group_tek_performance.items(),
-        key=lambda x: 2 * x[1]["Total_weighted_freq"] - x[1]["Group_avg_score"],
+        key=lambda x: 2 * x[1]["norm_freq"] - x[1]["norm_score"],
         reverse=True,
     )
 
